@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer</title>
+  <link rel="icon" href="favicon.ico">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    #clock {
+      font-size: 48px;
+      margin: 50px auto;
+    }
+    #select-box {
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 24px;
+    }
+    #alert {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+    #alert-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Timer</h1>
+  <p id="clock">00:00</p>
+  <select id="select-box" onchange="startTimer()">
+    <option value="">Select a time</option>
+    <option value="1">1 mins</option>
+    <option value="10">10 mins</option>
+    <option value="20">20 mins</option>
+    <option value="25">25 mins</option>
+    <option value="30">30 mins</option>
+    <option value="35">35 mins</option>
+    <option value="40">40 mins</option>
+    <option value="45">45 mins</option>
+  </select>
+  <div id="alert">
+    <div id="alert-message">Time is up!</div>
+  </div>
+  <script>
+    let timer;
+    let setMinutes;
+    
+    function startTimer() {
+      const selectedMinutes = document.getElementById("select-box").value;
+      if (!selectedMinutes) return;
+      
+      setMinutes = parseInt(selectedMinutes); // Store the set time in minutes
+      let remainingTime = setMinutes * 60; // Convert set time to seconds
+
+      clearInterval(timer); // Stop any existing timer
+      
+      updateDisplay(remainingTime); // Initial display update
+
+      timer = setInterval(() => {
+        remainingTime--;
+        
+        updateDisplay(remainingTime);
+
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          showAlarm();
+        }
+      }, 1000);
+    }
+    
+    function updateDisplay(remainingTime) {
+      const minutes = Math.floor(remainingTime / 60);
+      const seconds = remainingTime % 60;
+      document.getElementById("clock").textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+      // Update the tab title to show set time / remaining time
+      document.title = `${setMinutes} mins / ${minutes}:${seconds.toString().padStart(2, "0")} left`;
+    }
+
+    function showAlarm() {
+      document.getElementById("alert").style.display = "block";
+    }
+  </script>
+</body>
+</html>
 
