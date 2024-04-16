@@ -28,6 +28,7 @@
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 100;
+      cursor: pointer; /* 추가: 클릭 가능한 커서 스타일 */
     }
     #alert-message {
       position: absolute;
@@ -46,7 +47,7 @@
   <p id="clock">00:00</p>
   <select id="select-box" onchange="startTimer()">
     <option value="">Select a time</option>
-    <option value="1">1 mins</option>
+    <option value="1">1 min</option>
     <option value="10">10 mins</option>
     <option value="20">20 mins</option>
     <option value="25">25 mins</option>
@@ -55,31 +56,32 @@
     <option value="40">40 mins</option>
     <option value="45">45 mins</option>
   </select>
-  <div id="alert">
+  <div id="alert" onclick="refreshPage()"> <!-- 추가: 클릭 시 페이지 새로고침 이벤트 핸들러 -->
     <div id="alert-message">Time is up!</div>
   </div>
   <script>
     let timer;
     let setMinutes;
+    let blinkingTitleInterval; // 타이틀 깜박임을 관리하기 위한 변수
     
     function startTimer() {
       const selectedMinutes = document.getElementById("select-box").value;
       if (!selectedMinutes) return;
       
-      setMinutes = parseInt(selectedMinutes); // Store the set time in minutes
-      let remainingTime = setMinutes * 60; // Convert set time to seconds
+      setMinutes = parseInt(selectedMinutes);
+      let remainingTime = setMinutes * 60;
 
-      clearInterval(timer); // Stop any existing timer
-      
-      updateDisplay(remainingTime); // Initial display update
+      clearInterval(timer);
+      clearBlinkingTitle(); // 기존의 타이틀 깜박임을 정지
+      updateDisplay(remainingTime); // 초기 남은 시간 표시
 
       timer = setInterval(() => {
         remainingTime--;
-        
         updateDisplay(remainingTime);
 
         if (remainingTime <= 0) {
           clearInterval(timer);
+          blinkTitle("Time is up!", 1000); // 타이틀 깜박임 시작
           showAlarm();
         }
       }, 1000);
@@ -89,13 +91,31 @@
       const minutes = Math.floor(remainingTime / 60);
       const seconds = remainingTime % 60;
       document.getElementById("clock").textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      document.title = `${minutes}:${seconds.toString().padStart(2, "0")} left`; // 타이틀 업데이트
+    }
 
-      // Update the tab title to show set time / remaining time
-      document.title = `${setMinutes} mins / ${minutes}:${seconds.toString().padStart(2, "0")} left`;
+    function blinkTitle(message, interval) {
+      let originalTitle = document.title;
+      document.title = message;
+      blinkingTitleInterval = setInterval(() => {
+        document.title = document.title === message ? originalTitle : message;
+      }, interval);
+    }
+
+    function clearBlinkingTitle() {
+      if (blinkingTitleInterval) {
+        clearInterval(blinkingTitleInterval);
+        document.title = 'Timer'; // 초기 타이틀로 복원
+      }
     }
 
     function showAlarm() {
       document.getElementById("alert").style.display = "block";
+    }
+
+    function refreshPage() {
+      clearBlinkingTitle(); // 깜박임 정지
+      location.reload(); // 페이지 새로고침
     }
   </script>
 </body>
